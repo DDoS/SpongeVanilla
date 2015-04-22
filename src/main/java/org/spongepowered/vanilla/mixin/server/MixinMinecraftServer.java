@@ -26,6 +26,8 @@ package org.spongepowered.vanilla.mixin.server;
 
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.IChatComponent;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.event.state.ServerStartedEvent;
 import org.spongepowered.api.event.state.ServerStoppedEvent;
@@ -34,15 +36,21 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.text.SpongeChatComponent;
 import org.spongepowered.common.text.SpongeText;
 import org.spongepowered.common.text.SpongeTextFactory;
 import org.spongepowered.vanilla.SpongeVanilla;
+import org.spongepowered.vanilla.console.ConsoleFormatter;
 
 @Mixin(MinecraftServer.class)
 public abstract class MixinMinecraftServer implements Server, CommandSource, ICommandSender {
+
+    @Shadow
+    private static Logger logger;
 
     @Inject(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;addFaviconToStatusResponse"
             + "(Lnet/minecraft/network/ServerStatusResponse;)V", shift = At.Shift.AFTER))
@@ -76,6 +84,11 @@ public abstract class MixinMinecraftServer implements Server, CommandSource, ICo
         for (Text message : messages) {
             addChatMessage(((SpongeText) message).toComponent(SpongeTextFactory.getDefaultLocale()));
         }
+    }
+
+    @Override @Overwrite
+    public void addChatMessage(IChatComponent component) {
+        logger.info(ConsoleFormatter.format(((SpongeChatComponent) component).toLegacy(SpongeText.COLOR_CHAR)));
     }
 
     @Override

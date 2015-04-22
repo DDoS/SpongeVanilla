@@ -4,6 +4,8 @@
     "package": "org.spongepowered.vanilla.mixin",
     "refmap": "mixins.vanilla.refmap.json",
     "server": [
+        "MixinBootstrap",
+        "server.MixinConsoleHandler",
         "server.MixinDedicatedServer",
         "server.MixinMinecraftServer",
         "server.MixinServerCommandManager",
